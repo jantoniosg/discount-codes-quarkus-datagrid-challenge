@@ -1,0 +1,234 @@
+= Challenge 6: Discount Codes Microservices challenge with Quarkus and Red Hat Data Grid
+Álvaro López Medina <alopezme@redhat.com>; Katia Aresti <karesti@redhat.com>
+v1.0, 2021-09
+// Create TOC wherever needed
+:toc: macro
+:sectanchors:
+:sectnumlevels: 2
+// :sectnums: 
+:source-highlighter: pygments
+// :imagesdir: images
+// Start: Enable admonition icons
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+ifndef::env-github[]
+:icons: font
+endif::[]
+// End: Enable admonition icons
+
+// Create the Table of contents here
+toc::[]
+
+== Introduction
+
+After completing this challenge, you will know how to build Microservices with Quarkus, using the Data Grid client, Data Grid Search API and how Protocol Buffers data serialization works. Data Grid is an Open source Key-Value In-memory distributed data store, whose community project name is Infinispan. 
+
+[IMPORTANT]
+====
+The application developed in this challenge requires an instance of RH Data Grid 8.2 or Infinispan running to connect to. The final result has to run on Openshift, but for development purposes, you may want to use a local environment. Guidelines to deploy your Data Grid locally can be found in section <<setting-up-your-local-development-environment, Setting up your local development environment>>.
+
+Otherwise, we recommend you to use the CodeReady Workspaces instance deployed in your Openshift cluster.
+====
+
+
+== Exercise 0: Challenge first steps
+
+At the end of this exercise, you will have your application ready to code all the features required in this challenge. Please, before continuing to the next exercise, make sure that:
+
+- The application compiles, connects to Data Grid locally and runs.
+- The Infinispan Quarkus dependency is in place.
+- The necessary properties in the `application.properties` are configured.
+- [Only local] Data Grid 8.2 or Infinispan 12.1.x.Final is running locally (through a container or by using the binaries).
+
+As this is a Quarkus application, running it is as simple as executing the following command:
+[source, bash]
+----
+./mvnw compile quarkus:dev
+----
+
+[TIP]
+====
+To avoid conflicts, the quickstart configures another HTTP port in the /src/main/resources/application.properties[configuration file].
+with the following property:
+
+[source, yaml]
+----
+quarkus.http.port=8081
+----
+====
+
+
+== Exercise 1: Discount codes application
+
+You will be provided with a Quarkus application which exposes a REST API to create and use Discount Codes. Discount codes have a name, an enterprise name, a value and a type. Types are PERCENT or VALUE. For example:
+
+PROMO12, SEPHORA, 20, PERCENT (20% discount in Sephora) D1876, ZARA, 10, VALUE (10 euros of discount in Zara)
+
+
+
+
+== Exercise 2: List your discount codes
+
+Implement REST API endpoints that:
+
+1. Adds values in the cache. 
+2. That displays the list of discount  codes available for a given type of discount code (`PERCENT` or `VALUE`).
+
+For simplicity, let’s assume that this API won’t be called concurrently.
+
+[TIP]
+====
+You can see examples of how to call this endpoints in the `discountCreator.sh` script.
+====
+
+
+
+== Exercise 3: Running your application on Openshift
+
+Whether you decided to start coding locally or on CodeReady Workspaces, you will need to run your application in its own pod at some point. In this section, we will help you to do so!
+
+[CAUTION]
+====
+Executing your application from CodeReady Workspaces is not enough to consider that your application is running on Openshift.
+====
+
+First, you need to create an image based on a Java image. I suggest using an image like `ubi8-openjdk-11`. You can find more information https://catalog.redhat.com/software/containers/ubi8/openjdk-11/5dd6a4b45a13461646f677f4[here]. You can create this image using the s2i utility that provides Openshift. Follow this https://docs.openshift.com/container-platform/4.7/openshift_images/using_images/using-s21-images.html[link] for more information.
+
+Second, you need to deploy your image on your Openshift project. I recommend you to use a Deployment or DeploymentConfig.
+
+Third, you have to configure your client to connect to the Data Grid server. All the configuration that can change should be in the `application.properties`.
+
+[TIP]
+====
+If you are a little bit lost, maybe you can check https://github.com/alvarolop/rhdg8-client#52-running-the-client-on-openshift
+[this] example of configuration. 
+
+Ask questions if you are stuck in this section!!
+====
+
+
+== Bonus track 1
+Change the discount code creation REST endpoint to add a parameter that will make discount codes expire and be removed from the system after the given number of seconds. The existing REST API will get a new numeric parameter in seconds.
+
+
+
+
+== Bonus track 2
+Change the discount code consumer REST API to count how many PERCENT or VALUE codes have been used globally. Modify the discount code list REST endpoint to include that numeric value in the payload.
+
+* PROMO12, 315, SEPHORA, 20, PERCENT (20% discount in Sephora used 315 times)
+* D1876, 55, ZARA, 10, VALUE (10 euros of discount in Zara used 55 times)
+
+
+== Bonus track 3
+If the service needs to be called concurrently, which ideas would you have to make it possible and avoid race conditions?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==  [Optional] Setting up your local development environment
+
+
+To run this application locally, you will need all the following requirements met:
+
+* To run your client application:
+** JDK 11+ installed with JAVA_HOME configured appropriately.
+** Apache Maven 3.8.1+
+* To run your server:
+** Check section below.
+* To execute scripts:
+** Bash console.
+** `curl` command installed.
+* To deliver the exercise and work as a group:
+** A `git` account.
+
+
+Run your server locally using one of these two options:
+
+=== Running Infinispan inside a container
+
+Running the server using a container image is as simple as executing the following command:
+
+[source, bash]
+----
+podman run -p 11222:11222 -e USER="admin" -e PASS="password" quay.io/infinispan/server:12.1.7.Final-1
+----
+
+If the server is up and running, you should see the following logs:
+
+[source, bash]
+----
+17:29:38,655 INFO  (main) [org.infinispan.SERVER] ISPN080018: Started connector REST (internal)
+17:29:38,865 INFO  (main) [org.infinispan.SERVER] ISPN080004: Connector SINGLE_PORT (default) listening on 10.0.2.100:11222
+17:29:38,903 INFO  (main) [org.infinispan.SERVER] ISPN080001: Infinispan Server 12.1.7.Final started in 6149ms
+----
+
+
+There is a known compatibility issue in the Docker For Mac and the Infinispan Client. Explanations can be found in
+https://blog.infinispan.org/2018/03/accessing-infinispan-inside-docker-for.html[this blog post].
+You **won't need to do this in your production environment**, but Docker for Mac users have to configure the following 
+property in the file `src/main/resources/META-INF/resources/hotrod-client.properties`: 
+
+[source, yaml]
+----
+quarkus.infinispan-client.client-intelligence=BASIC
+----
+
+=== Running Infinispan from its binaries
+
+Follow the steps below:
+
+- Download server binaries from the https://infinispan.org/download/[Infinispan Downloads website]. Choose version `12.1.7.Final`.
+- Unzip the file and `cd` into the folder. 
+- Run the server using the script: `./bin/server.sh`.
+
+If the server is up and running, you should see the following logs:
+
+[source, bash]
+----
+17:29:38,655 INFO  (main) [org.infinispan.SERVER] ISPN080018: Started connector REST (internal)
+17:29:38,865 INFO  (main) [org.infinispan.SERVER] ISPN080004: Connector SINGLE_PORT (default) listening on 10.0.2.100:11222
+17:29:38,903 INFO  (main) [org.infinispan.SERVER] ISPN080001: Infinispan Server 12.1.7.Final started in 4399ms
+----
+
+
+
+
+
+
+
+
+
+
+
+
+== Documentation and Resources for this challenge
+
+In order to be successful in this  challenge, you will need to check extra documentation. Here you can find some useful links:
+
+* https://infinispan.org/get-started[Running an Infinispan server locally].
+
+
+
+== Need help?
+
+Remember that we are all here to answer any questions and support you during all the Developer Games:
+
+* Katia Aresti - karestig@redhat.com
+* Álvaro López - alopezme@redhat.com
