@@ -1,6 +1,8 @@
 package com.redhat.challenge.discount.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import org.infinispan.protostream.annotations.ProtoFactory;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.Objects;
 
@@ -12,18 +14,23 @@ public class DiscountCode {
    private String enterprise;
    private DiscountCodeType type;
    private Integer used;
+   private Integer lifespan;
 
    public DiscountCode() {
    }
 
-   public DiscountCode(String name, Integer amount, String enterprise, DiscountCodeType type, Integer used) {
+   @ProtoFactory
+   public DiscountCode(String name, Integer amount, String enterprise, DiscountCodeType type, Integer used,
+                       Integer lifespan) {
       this.name = name;
       this.amount = amount;
       this.enterprise = enterprise;
       this.type = type;
       this.used = used;
+      this.lifespan = lifespan;
    }
 
+   @ProtoField(number = 1)
    public String getName() {
       return name;
    }
@@ -32,6 +39,7 @@ public class DiscountCode {
       this.name = name;
    }
 
+   @ProtoField(number = 2)
    public Integer getAmount() {
       return amount;
    }
@@ -40,6 +48,7 @@ public class DiscountCode {
       this.amount = amount;
    }
 
+   @ProtoField(number = 3)
    public String getEnterprise() {
       return enterprise;
    }
@@ -48,6 +57,7 @@ public class DiscountCode {
       this.enterprise = enterprise;
    }
 
+   @ProtoField(number = 4)
    public DiscountCodeType getType() {
       return type;
    }
@@ -56,6 +66,7 @@ public class DiscountCode {
       this.type = type;
    }
 
+   @ProtoField(number = 5)
    public Integer getUsed() {
       return used;
    }
@@ -64,25 +75,43 @@ public class DiscountCode {
       this.used = used;
    }
 
+   @ProtoField(number = 6)
+   public Integer getLifespan() {
+      return lifespan;
+   }
+
+   public void setLifespan(Integer lifespan) {
+      this.lifespan = lifespan;
+   }
+
    @Override
    public boolean equals(Object o) {
-      if (this == o)
+      if (this == o) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (o == null || getClass() != o.getClass()) {
          return false;
+      }
       DiscountCode that = (DiscountCode) o;
-      return Objects.equals(name, that.name) && Objects.equals(amount, that.amount) && Objects
-            .equals(enterprise, that.enterprise) && type == that.type && Objects.equals(used, that.used);
+      return Objects.equals(name, that.name) && Objects.equals(amount, that.amount) && Objects.equals(enterprise,
+              that.enterprise) && type == that.type && Objects.equals(used, that.used)
+              && Objects.equals(lifespan, that.lifespan);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(name, amount, enterprise, type, used);
+      return Objects.hash(name, amount, enterprise, type, used, lifespan);
    }
 
    @Override
    public String toString() {
-      return "DiscountCode{" + "name='" + name + '\'' + ", amount=" + amount + ", enterprise='" + enterprise + '\''
-            + ", type=" + type + ", used=" + used + '}';
+      return "DiscountCode{" +
+              "name='" + name + '\'' +
+              ", amount=" + amount +
+              ", enterprise='" + enterprise + '\'' +
+              ", type=" + type +
+              ", used=" + used +
+              ", secondsToExpire=" + lifespan +
+              '}';
    }
 }
