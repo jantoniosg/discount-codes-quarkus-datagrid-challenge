@@ -14,20 +14,17 @@ public class DiscountCode {
    private String enterprise;
    private DiscountCodeType type;
    private Integer used;
-   private Integer lifespan;
 
    public DiscountCode() {
    }
 
    @ProtoFactory
-   public DiscountCode(String name, Integer amount, String enterprise, DiscountCodeType type, Integer used,
-                       Integer lifespan) {
+   public DiscountCode(String name, Integer amount, String enterprise, DiscountCodeType type, Integer used) {
       this.name = name;
       this.amount = amount;
       this.enterprise = enterprise;
       this.type = type;
       this.used = used;
-      this.lifespan = lifespan;
    }
 
    @ProtoField(number = 1)
@@ -75,14 +72,6 @@ public class DiscountCode {
       this.used = used;
    }
 
-   @ProtoField(number = 6)
-   public Integer getLifespan() {
-      return lifespan;
-   }
-
-   public void setLifespan(Integer lifespan) {
-      this.lifespan = lifespan;
-   }
 
    @Override
    public boolean equals(Object o) {
@@ -94,13 +83,12 @@ public class DiscountCode {
       }
       DiscountCode that = (DiscountCode) o;
       return Objects.equals(name, that.name) && Objects.equals(amount, that.amount) && Objects.equals(enterprise,
-              that.enterprise) && type == that.type && Objects.equals(used, that.used)
-              && Objects.equals(lifespan, that.lifespan);
+              that.enterprise) && type == that.type && Objects.equals(used, that.used);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(name, amount, enterprise, type, used, lifespan);
+      return Objects.hash(name, amount, enterprise, type, used);
    }
 
    @Override
@@ -111,7 +99,6 @@ public class DiscountCode {
               ", enterprise='" + enterprise + '\'' +
               ", type=" + type +
               ", used=" + used +
-              ", secondsToExpire=" + lifespan +
               '}';
    }
 }

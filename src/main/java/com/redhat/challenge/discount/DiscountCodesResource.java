@@ -20,8 +20,9 @@ public class DiscountCodesResource {
   protected DiscountService discountService;
 
   @POST
-  public Response create(DiscountCode discountCode) {
-    return Response.created(URI.create(discountService.create(discountCode))).build();
+  @Path("/{lifespan}")
+  public Response create(DiscountCode discountCode, @PathParam("lifespan") long lifespan) {
+    return Response.created(URI.create(discountService.create(discountCode, lifespan))).build();
   }
 
   @GET

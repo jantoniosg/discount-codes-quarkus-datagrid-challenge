@@ -26,12 +26,12 @@ public class DiscountService {
   @Remote(DISCOUNTS_NAME)
   protected RemoteCache<String, DiscountCode> cache;
 
-  public String create(DiscountCode discountCode) {
+  public String create(DiscountCode discountCode, long lifespan) {
 
     if (!cache.containsKey(discountCode.getName())) {
       discountCode.setUsed(0);
 
-      cache.put(discountCode.getName(), discountCode, discountCode.getLifespan(), TimeUnit.SECONDS);
+      cache.put(discountCode.getName(), discountCode, lifespan, TimeUnit.SECONDS);
 
       return discountCode.getName();
     }
@@ -47,7 +47,8 @@ public class DiscountService {
 
     discountCode.setUsed(discountCode.getUsed() + 1);
 
-    cache.putAsync(name, discountCode, discountCode.getLifespan(), TimeUnit.SECONDS);
+    // This provokes that lifespan (expiration) disappears
+    cache.put(name, discountCode);
 
     String discount = Utils.discountStr(discountCode);
     String enterpriseCapitalize = Utils.capitalize(discountCode.getEnterprise());
@@ -66,7 +67,7 @@ public class DiscountService {
   public List<DiscountCode> getByType(DiscountCodeType type) {
     if (cache == null) {
       LOGGER.error("Unable to search... ");
-      throw new IllegalStateException("Characters store is null. Try restarting the application");
+      throw new IllegalStateException("DiscountCodes store is null. Try restarting the application");
     }
     QueryFactory queryFactory = Search.getQueryFactory(cache);
 
