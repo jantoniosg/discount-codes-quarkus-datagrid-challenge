@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DiscountCodesResourceTest {
 
   @Test
-  public void testCreateConsumeAndListCodes() {
+  void testCreateConsumeAndListCodes() {
     given()
             .body("{\"name\": \"PROMO42\", \"amount\": 20, \"enterprise\": \"ALBACETEBANK\", \"type\": \"VALUE\"}")
             .contentType(ContentType.JSON)

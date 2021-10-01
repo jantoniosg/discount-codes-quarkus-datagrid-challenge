@@ -17,7 +17,7 @@ import java.util.List;
 public class DiscountCodesResource {
 
   @Inject
-  DiscountService discountService;
+  protected DiscountService discountService;
 
   @POST
   public Response create(DiscountCode discountCode) {

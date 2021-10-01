@@ -24,7 +24,7 @@ public class DiscountService {
 
   @Inject
   @Remote(DISCOUNTS_NAME)
-  RemoteCache<String, DiscountCode> cache;
+  protected RemoteCache<String, DiscountCode> cache;
 
   public String create(DiscountCode discountCode) {
 

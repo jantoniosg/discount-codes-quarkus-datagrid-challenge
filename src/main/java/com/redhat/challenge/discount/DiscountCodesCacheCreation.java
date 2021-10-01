@@ -22,7 +22,7 @@ public class DiscountCodesCacheCreation {
           + "</distributed-cache>";
 
   @Inject
-  RemoteCacheManager cacheManager;
+  protected RemoteCacheManager cacheManager;
 
   void onStart(@Observes StartupEvent ev) {
     LOGGER.info("Create or get cache named discounts with the default configuration");
