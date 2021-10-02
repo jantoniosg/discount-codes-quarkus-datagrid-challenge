@@ -3,7 +3,6 @@ package com.redhat.challenge.discount.service;
 import com.redhat.challenge.discount.model.DiscountCode;
 import com.redhat.challenge.discount.model.DiscountCodeType;
 import io.quarkus.infinispan.client.Remote;
-import org.infinispan.client.hotrod.MetadataValue;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
 import org.infinispan.query.dsl.QueryFactory;
@@ -39,27 +38,13 @@ public class DiscountService {
 
     discountCode.setUsed(discountCode.getUsed() + 1);
 
-    MetadataValue<DiscountCode> metadataValue = cache.getWithMetadata(name);
-    int lifespan = metadataValue.getLifespan();
-    long version = metadataValue.getVersion();
-    long createdTime = metadataValue.getCreated();
-    long currentTime = System.currentTimeMillis();
-
-    long seconds = TimeUnit.MILLISECONDS.toSeconds(currentTime - createdTime);
-
-    long timeLeft = lifespan - seconds;
-
     // "cache.replace" provokes that lifespan (expiration) disappears
-    // According to this question/answer in stack overflow (We know is not an official infinispan source but is the
-    // nearest answer about this topic that we can find
+    // According to this question/answer in stack overflow (We know is not an official infinispan reference but is the
+    // nearest answer about this topic that we can find)
     // https://stackoverflow.com/questions/27739601/update-infinispan-objects-maintaining-expiration-time
     // We think that for this practice, is not necessary to calculate the expired time left, but we need to leave this
     // clear (at least in words)
-    // cache.replace(name, discountCode, lifespan, TimeUnit.SECONDS);
-    cache.replace(name, discountCode, timeLeft, TimeUnit.SECONDS);
-    //int lifespan = cache.getWithMetadata(name).getLifespan();//, (s, discountCode1) -> discountCode);
-    // System.out.println(lifespan);
-    // cache.getWithMetadata(name).getValue().setUsed(discountCode.getUsed() + 1);
+    cache.replace(name, discountCode);
 
     return discountCode;
   }

@@ -16,22 +16,26 @@ public class DiscountCodesCacheCreation {
 
   private static final Logger LOGGER = LoggerFactory.getLogger("DiscountsCodeCacheCreation");
 
-  private static final String CACHE_CONFIG = "<distributed-cache name=\"%s\">"
-          + " <encoding media-type=\"application/x-protostream\"/>"
-          + "</distributed-cache>";
-
-  String xml = String.format("<infinispan>" +
-                  "<cache-container>" +
-                  "<distributed-cache name=\"%s\" mode=\"SYNC\">" +
-                  "<encoding media-type=\"application/x-protostream\"/>" +
-                  "<locking isolation=\"READ_COMMITTED\"/>" +
-                  "<transaction mode=\"NON_XA\"/>" +
-                  //"<expiration lifespan=\"60000\" interval=\"20000\"/>" +
-                  "" +
-                  "</distributed-cache>" +
-                  "</cache-container>" +
-                  "</infinispan>"
-          , DiscountCode.DISCOUNT_CODE_CACHE);
+  // We've changed the actual cache configuration for two reasons:
+  // 1. To be able to use correctly cache.putIfAbsent in create method (without this configuration, we had a warning
+  // message).
+  // 2. To demonstrate a small way to manage concurrency. (Bonus Track #3)
+  // More about how to manage concurrency and lock in data grid in these links:
+  // https://access.redhat.com/documentation/en-us/red_hat_data_grid/7.1/html/administration_and_configuration_guide/locking
+  // https://access.redhat.com/documentation/en-us/red_hat_data_grid/8.0/html/data_grid_developer_guide/locking_concurrency
+  private static final String CACHE_CONFIG = "<infinispan>" +
+          "<cache-container>" +
+          "<distributed-cache name=\"%s\" mode=\"SYNC\">" +
+          "<encoding media-type=\"application/x-protostream\"/>" +
+          // the default value for locking isolation
+          "<locking isolation=\"READ_COMMITTED\"/>" +
+          // Specifies how the RemoteCache is enlisted in the Transaction. If NONE is used, the RemoteCache won't be
+          // transactional.
+          // NON_XA: The cache is enlisted as Synchronization.
+          "<transaction mode=\"NON_XA\"/>" +
+          "</distributed-cache>" +
+          "</cache-container>" +
+          "</infinispan>";
 
   @Inject
   protected RemoteCacheManager cacheManager;
@@ -44,7 +48,6 @@ public class DiscountCodesCacheCreation {
     // Use XMLStringConfiguration. Grab a look to the simple tutorial about "creating caches on the fly" in the
     // Infinispan Simple Tutorials repository.
     cacheManager.administration().getOrCreateCache(DiscountCode.DISCOUNT_CODE_CACHE,
-            new XMLStringConfiguration(xml));
-   // System.out.printf("is transactional? = %s\n", cacheManager.isTransactional(DiscountCode.DISCOUNT_CODE_CACHE));
+            new XMLStringConfiguration(cacheConfig));
   }
 }
