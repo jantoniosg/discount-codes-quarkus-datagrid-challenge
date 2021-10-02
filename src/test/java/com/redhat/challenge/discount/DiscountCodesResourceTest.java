@@ -4,7 +4,6 @@ import com.redhat.challenge.discount.model.DiscountCode;
 import com.redhat.challenge.discount.model.DiscountCodeType;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
@@ -19,16 +18,18 @@ class DiscountCodesResourceTest {
 
   @Test
   void testCreateConsumeAndListCodes() {
+
     given()
-            .body("{\"name\": \"PROMO42\", \"amount\": 20, \"enterprise\": \"ALBACETEBANK\", \"type\": \"VALUE\"}")
+            .body("{\"name\": \"PROMO42\", \"amount\": 20, \"enterprise\": \"ALBACETEBANK\", \"type\": " +
+                    "\"VALUE\"}")
             .contentType(ContentType.JSON)
             .when()
-            .post("/discounts")
+            .post("/discounts/{lifespan}", 3600)
             .then()
             .statusCode(201);
 
-    DiscountCode discountCode = RestAssured
-            .given()
+
+    DiscountCode discountCode = given()
             .when()
             .contentType(ContentType.JSON)
             .get("/discounts/consume/{name}", "PROMO42")
@@ -43,12 +44,12 @@ class DiscountCodesResourceTest {
     assertEquals(DiscountCodeType.VALUE, discountCode.getType());
     assertEquals(1, discountCode.getUsed());
 
-    DiscountCodes discountCodes = RestAssured
-            .given()
+    DiscountCodes discountCodes = given()
             .when()
             .contentType(ContentType.JSON)
             .get("/discounts/{type}", DiscountCodeType.VALUE)
             .then()
+            .assertThat()
             .statusCode(200)
             .extract()
             .body().as(DiscountCodes.class);

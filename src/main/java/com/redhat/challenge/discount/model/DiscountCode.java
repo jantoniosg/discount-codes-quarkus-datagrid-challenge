@@ -1,104 +1,108 @@
 package com.redhat.challenge.discount.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.util.Objects;
 
 @RegisterForReflection
+@ProtoDoc("Discount code Data type")
 public class DiscountCode {
 
-   private String name;
-   private Integer amount;
-   private String enterprise;
-   private DiscountCodeType type;
-   private Integer used;
+  public static final String DISCOUNT_CODE_CACHE = "discount-codes";
 
-   public DiscountCode() {
-   }
+  private String name;
+  private Integer amount;
+  private String enterprise;
+  private DiscountCodeType type;
+  private Integer used;
 
-   @ProtoFactory
-   public DiscountCode(String name, Integer amount, String enterprise, DiscountCodeType type, Integer used) {
-      this.name = name;
-      this.amount = amount;
-      this.enterprise = enterprise;
-      this.type = type;
-      this.used = used;
-   }
+  public DiscountCode() {
+  }
 
-   @ProtoField(number = 1)
-   public String getName() {
-      return name;
-   }
+  @ProtoFactory
+  public DiscountCode(String name, Integer amount, String enterprise, DiscountCodeType type, Integer used) {
+    this.name = name;
+    this.amount = amount;
+    this.enterprise = enterprise;
+    this.type = type;
+    this.used = used;
+  }
 
-   public void setName(String name) {
-      this.name = name;
-   }
+  @ProtoField(number = 1, required = true)
+  public String getName() {
+    return name;
+  }
 
-   @ProtoField(number = 2)
-   public Integer getAmount() {
-      return amount;
-   }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-   public void setAmount(Integer amount) {
-      this.amount = amount;
-   }
+  @ProtoField(number = 2, required = true)
+  public Integer getAmount() {
+    return amount;
+  }
 
-   @ProtoField(number = 3)
-   public String getEnterprise() {
-      return enterprise;
-   }
+  public void setAmount(Integer amount) {
+    this.amount = amount;
+  }
 
-   public void setEnterprise(String enterprise) {
-      this.enterprise = enterprise;
-   }
+  @ProtoField(number = 3, required = true)
+  public String getEnterprise() {
+    return enterprise;
+  }
 
-   @ProtoField(number = 4)
-   public DiscountCodeType getType() {
-      return type;
-   }
+  public void setEnterprise(String enterprise) {
+    this.enterprise = enterprise;
+  }
 
-   public void setType(DiscountCodeType type) {
-      this.type = type;
-   }
+  @ProtoField(number = 4, required = true)
+  public DiscountCodeType getType() {
+    return type;
+  }
 
-   @ProtoField(number = 5)
-   public Integer getUsed() {
-      return used;
-   }
+  public void setType(DiscountCodeType type) {
+    this.type = type;
+  }
 
-   public void setUsed(Integer used) {
-      this.used = used;
-   }
+  @ProtoField(number = 5, defaultValue = "0")
+  public Integer getUsed() {
+    return used;
+  }
+
+  public void setUsed(Integer used) {
+    this.used = used;
+  }
 
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) {
-         return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-         return false;
-      }
-      DiscountCode that = (DiscountCode) o;
-      return Objects.equals(name, that.name) && Objects.equals(amount, that.amount) && Objects.equals(enterprise,
-              that.enterprise) && type == that.type && Objects.equals(used, that.used);
-   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DiscountCode that = (DiscountCode) o;
+    return Objects.equals(name, that.name) && Objects.equals(amount, that.amount) && Objects.equals(enterprise,
+            that.enterprise) && type == that.type && Objects.equals(used, that.used);
+  }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(name, amount, enterprise, type, used);
-   }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, amount, enterprise, type, used);
+  }
 
-   @Override
-   public String toString() {
-      return "DiscountCode{" +
-              "name='" + name + '\'' +
-              ", amount=" + amount +
-              ", enterprise='" + enterprise + '\'' +
-              ", type=" + type +
-              ", used=" + used +
-              '}';
-   }
+  @Override
+  public String toString() {
+    return "DiscountCode{" +
+            "name='" + name + '\'' +
+            ", amount=" + amount +
+            ", enterprise='" + enterprise + '\'' +
+            ", type=" + type +
+            ", used=" + used +
+            '}';
+  }
 }

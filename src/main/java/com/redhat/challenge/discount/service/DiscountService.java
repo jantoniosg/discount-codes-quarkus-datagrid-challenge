@@ -2,7 +2,6 @@ package com.redhat.challenge.discount.service;
 
 import com.redhat.challenge.discount.model.DiscountCode;
 import com.redhat.challenge.discount.model.DiscountCodeType;
-import com.redhat.challenge.utils.Utils;
 import io.quarkus.infinispan.client.Remote;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
@@ -15,34 +14,26 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.redhat.challenge.discount.DiscountCodesCacheCreation.DISCOUNTS_NAME;
-
 @ApplicationScoped
 public class DiscountService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DiscountService.class.getName());
 
   @Inject
-  @Remote(DISCOUNTS_NAME)
+  @Remote(DiscountCode.DISCOUNT_CODE_CACHE)
   protected RemoteCache<String, DiscountCode> cache;
 
   public String create(DiscountCode discountCode, long lifespan) {
-
-    if (!cache.containsKey(discountCode.getName())) {
-      discountCode.setUsed(0);
-
-      cache.put(discountCode.getName(), discountCode, lifespan, TimeUnit.SECONDS);
-
-      return discountCode.getName();
-    }
+    cache.putIfAbsent(discountCode.getName(), discountCode, lifespan, TimeUnit.SECONDS);
     return discountCode.getName();
   }
 
-  public String consume(String name) {
+  public DiscountCode consume(String name) {
     DiscountCode discountCode = cache.get(name);
 
     if (discountCode == null) {
-      return "The discount code  " + name + " does not exists";
+      LOGGER.error("Unable to search... ");
+      throw new IllegalStateException("DiscountCode does not exists.");
     }
 
     discountCode.setUsed(discountCode.getUsed() + 1);
@@ -50,12 +41,7 @@ public class DiscountService {
     // This provokes that lifespan (expiration) disappears
     cache.put(name, discountCode);
 
-    String discount = Utils.discountStr(discountCode);
-    String enterpriseCapitalize = Utils.capitalize(discountCode.getEnterprise());
-
-    return "· " + discountCode.getName().toUpperCase() + ", " + discountCode.getUsed() + ", " +
-            discountCode.getEnterprise() + ", " + discountCode.getAmount() + ", " + discountCode.getType()
-            + " (" + discount + enterpriseCapitalize + " used " + discountCode.getUsed() + " times)";
+    return discountCode;
   }
 
   /**
@@ -67,12 +53,11 @@ public class DiscountService {
   public List<DiscountCode> getByType(DiscountCodeType type) {
     if (cache == null) {
       LOGGER.error("Unable to search... ");
-      throw new IllegalStateException("DiscountCodes store is null. Try restarting the application");
+      throw new IllegalStateException("DiscountCodes is null. Try restarting the application");
     }
     QueryFactory queryFactory = Search.getQueryFactory(cache);
 
-    String query = "FROM dc_monitoring.DiscountCode d"
-            + " WHERE d.type = '" + type.toString() + "'";
+    String query = "from developer_games.DiscountCode where type = '" + type.toString() + "'";
 
     return queryFactory.<DiscountCode>create(query).execute().list();
   }

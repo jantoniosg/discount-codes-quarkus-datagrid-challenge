@@ -1,5 +1,6 @@
-package com.redhat.challenge.discount;
+package com.redhat.challenge.discount.resource;
 
+import com.redhat.challenge.discount.DiscountCodes;
 import com.redhat.challenge.discount.model.DiscountCode;
 import com.redhat.challenge.discount.model.DiscountCodeType;
 import com.redhat.challenge.discount.service.DiscountService;
@@ -27,8 +28,7 @@ public class DiscountCodesResource {
 
   @GET
   @Path("/consume/{name}")
-  @Produces(MediaType.TEXT_PLAIN)
-  public String consume(@PathParam("name") String name) {
+  public DiscountCode consume(@PathParam("name") String name) {
     return discountService.consume(name);
   }
 

@@ -11,6 +11,9 @@ public class DiscountCodes {
    private long totalCount;
    private List<DiscountCode> discountCodesList;
 
+   public DiscountCodes() {
+   }
+
    public DiscountCodes(List<DiscountCode> discountCodesList, long totalCount) {
       this.discountCodesList = Collections.unmodifiableList(discountCodesList);
       this.totalCount = totalCount;
