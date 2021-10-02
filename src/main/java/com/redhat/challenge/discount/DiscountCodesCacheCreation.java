@@ -20,6 +20,19 @@ public class DiscountCodesCacheCreation {
           + " <encoding media-type=\"application/x-protostream\"/>"
           + "</distributed-cache>";
 
+  String xml = String.format("<infinispan>" +
+                  "<cache-container>" +
+                  "<distributed-cache name=\"%s\" mode=\"SYNC\">" +
+                  "<encoding media-type=\"application/x-protostream\"/>" +
+                  "<locking isolation=\"READ_COMMITTED\"/>" +
+                  "<transaction mode=\"NON_XA\"/>" +
+                  //"<expiration lifespan=\"60000\" interval=\"20000\"/>" +
+                  "" +
+                  "</distributed-cache>" +
+                  "</cache-container>" +
+                  "</infinispan>"
+          , DiscountCode.DISCOUNT_CODE_CACHE);
+
   @Inject
   protected RemoteCacheManager cacheManager;
 
@@ -31,6 +44,7 @@ public class DiscountCodesCacheCreation {
     // Use XMLStringConfiguration. Grab a look to the simple tutorial about "creating caches on the fly" in the
     // Infinispan Simple Tutorials repository.
     cacheManager.administration().getOrCreateCache(DiscountCode.DISCOUNT_CODE_CACHE,
-            new XMLStringConfiguration(cacheConfig));
+            new XMLStringConfiguration(xml));
+   // System.out.printf("is transactional? = %s\n", cacheManager.isTransactional(DiscountCode.DISCOUNT_CODE_CACHE));
   }
 }
