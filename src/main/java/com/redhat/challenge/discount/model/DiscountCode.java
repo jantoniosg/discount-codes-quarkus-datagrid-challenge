@@ -11,7 +11,7 @@ import java.util.Objects;
 @ProtoDoc("Discount code Data type")
 public class DiscountCode {
 
-  public static final String DISCOUNT_CODE_CACHE = "discount";
+  public static final String DISCOUNT_CODE_CACHE = "discounts";
 
   private String name;
   private Integer amount;

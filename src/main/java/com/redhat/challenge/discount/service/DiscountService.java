@@ -2,6 +2,7 @@ package com.redhat.challenge.discount.service;
 
 import com.redhat.challenge.discount.model.DiscountCode;
 import com.redhat.challenge.discount.model.DiscountCodeType;
+import com.redhat.challenge.utils.Utils;
 import io.quarkus.infinispan.client.Remote;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.Search;
@@ -33,21 +34,18 @@ public class DiscountService {
 
     if (discountCode == null) {
       LOGGER.error("Unable to search... ");
-      throw new IllegalStateException("DiscountCode does not exists.");
+      throw new IllegalStateException("DiscountCode does not exist.");
     }
 
     discountCode.setUsed(discountCode.getUsed() + 1);
 
-    // "cache.replace" provokes that lifespan (expiration) disappears
-    // According to this question/answer in stack overflow (We know is not an official infinispan reference but is the
-    // nearest answer about this topic that we can find)
-    // https://stackoverflow.com/questions/27739601/update-infinispan-objects-maintaining-expiration-time
-    // We think that for this practice, is not necessary to calculate the expired time left, but we need to leave this
-    // clear (at least in words)
-    cache.replace(name, discountCode);
+    long newLifespan = Utils.calculateNewLifespan(name, cache);
+
+    cache.replace(name, discountCode, newLifespan, TimeUnit.SECONDS);
 
     return discountCode;
   }
+
 
   /**
    * Performs a simple full-text query on type
