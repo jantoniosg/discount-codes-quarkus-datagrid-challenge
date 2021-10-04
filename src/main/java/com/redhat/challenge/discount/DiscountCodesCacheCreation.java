@@ -47,7 +47,7 @@ public class DiscountCodesCacheCreation {
     String cacheConfig = String.format(CACHE_CONFIG, DiscountCode.DISCOUNT_CODE_CACHE);
     // Use XMLStringConfiguration. Grab a look to the simple tutorial about "creating caches on the fly" in the
     // Infinispan Simple Tutorials repository.
-    cacheManager.administration().getOrCreateCache(DiscountCode.DISCOUNT_CODE_CACHE,
-            new XMLStringConfiguration(cacheConfig));
+//    cacheManager.administration().getOrCreateCache(DiscountCode.DISCOUNT_CODE_CACHE,
+//            new XMLStringConfiguration(cacheConfig));
   }
 }
